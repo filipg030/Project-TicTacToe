@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicTacToe</title>
+    <style>
+        * {
+            user-select: none;
+            font-family: monospace;
+        }
+
+        button,
+        button:after {
+            width: 150px;
+            height: 76px;
+            line-height: 78px;
+            font-size: 20px;
+            font-family: 'Bebas Neue', sans-serif;
+            background: linear-gradient(45deg, transparent 5%, #FF013C 5%);
+            border: 0;
+            color: #fff;
+            letter-spacing: 3px;
+            box-shadow: 6px 0px 0px #00E6F6;
+            outline: transparent;
+            position: relative;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        button:after {
+            --slice-0: inset(50% 50% 50% 50%);
+            --slice-1: inset(80% -6px 0 0);
+            --slice-2: inset(50% -6px 30% 0);
+            --slice-3: inset(10% -6px 85% 0);
+            --slice-4: inset(40% -6px 43% 0);
+            --slice-5: inset(80% -6px 5% 0);
+
+            content: 'ALTERNATE TEXT';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 3%, #00E6F6 3%, #00E6F6 5%, #FF013C 5%);
+            text-shadow: -3px -3px 0px #F8F005, 3px 3px 0px #00E6F6;
+            clip-path: var(--slice-0);
+        }
+
+        button:hover:after {
+            animation: 1s glitch;
+            animation-timing-function: steps(2, end);
+        }
+
+        @keyframes glitch {
+            0% {
+                clip-path: var(--slice-1);
+                transform: translate(-20px, -10px);
+            }
+
+            10% {
+                clip-path: var(--slice-3);
+                transform: translate(10px, 10px);
+            }
+
+            20% {
+                clip-path: var(--slice-1);
+                transform: translate(-10px, 10px);
+            }
+
+            30% {
+                clip-path: var(--slice-3);
+                transform: translate(0px, 5px);
+            }
+
+            40% {
+                clip-path: var(--slice-2);
+                transform: translate(-5px, 0px);
+            }
+
+            50% {
+                clip-path: var(--slice-3);
+                transform: translate(5px, 0px);
+            }
+
+            60% {
+                clip-path: var(--slice-4);
+                transform: translate(5px, 10px);
+            }
+
+            70% {
+                clip-path: var(--slice-2);
+                transform: translate(-10px, 10px);
+            }
+
+            80% {
+                clip-path: var(--slice-5);
+                transform: translate(20px, -10px);
+            }
+
+            90% {
+                clip-path: var(--slice-1);
+                transform: translate(-10px, 0px);
+            }
+
+            100% {
+                clip-path: var(--slice-1);
+                transform: translate(0);
+            }
+        }
+
+        @media (min-width: 768px) {
+
+            .button-49,
+            .button-49:after {
+                width: 200px;
+                height: 86px;
+                line-height: 88px;
+            }
+        }
+
+
+        #selectPlayer {
+            text-align: center;
+            font-size: 30px;
+        }
+
+        #youAre {
+            text-align: center;
+            display: none;
+            font-size: 30px;
+        }
+
+        #playfield {
+            margin-top: 50px
+        }
+
+        #playfield>table {
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        td {
+            width: 75px;
+            height: 75px;
+            border: 1px solid black;
+            text-align: center;
+            font-size: 50px;
+        }
+
+        #whoseGo {
+            text-align: center;
+            color: red;
+            font-size: 100px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="selectPlayer">
+        <p>Wybierz Gracza:</p>
+        <button name="x" id="selectCrosses" onclick="chooseCrosses()">X</button>
+        <button name="o" id="selectOs" onclick="chooseOs()">O</button>
+    </div>
+    <div id="youAre">
+        <p>Jestes: </p>
+    </div>
+    <div id="playfield">
+        <table>
+            <tr>
+                <td id="1" onclick="turn(1)"></td>
+                <td id="2" onclick="turn(2)"></td>
+                <td id="3" onclick="turn(3)"></td>
+            </tr>
+            <tr>
+                <td id="4" onclick="turn(4)"></td>
+                <td id="5" onclick="turn(5)"></td>
+                <td id="6" onclick="turn(6)"></td>
+            </tr>
+            <tr>
+                <td id="7" onclick="turn(7)"></td>
+                <td id="8" onclick="turn(8)"></td>
+                <td id="9" onclick="turn(9)"></td>
+            </tr>
+        </table>
+    </div>
+    <button onclick="clearSQL()">Restart</button>
+    <div>
+        <p id="whoseGo"></p>
+    </div>
+</body>
+<script>
+    let side = ''
+    let whoseTurn = 'x'
+    function turn(x) {
+        if (whoseTurn == side && document.getElementById(x).innerHTML == "") {
+            let box = document.getElementById(x)
+            box.innerHTML = player
+            fetch("server.php", {
+                method: "POST",
+                body: JSON.stringify({
+                    request: "turn",
+                    cell: x
+                }),
+                headers: {
+                    "Content-type": "application/json"
+                }
+            })
+                .then(response => response.text())
+                .then(data => {
+                })
+        } else {
+            console.log("not your turn/cant place here")
+        }
+        whoseTurn = 'none'
+    }
+
+    function chooseCrosses() {
+        document.getElementById("selectPlayer").style.display = 'none'
+        document.getElementById("youAre").style.display = 'block'
+        fetch("server.php", {
+            method: "POST",
+            body: JSON.stringify({
+                request: "side",
+                iWant: "x"
+            }),
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data)
+            })
+    }
+    function clearSQL() {
+        fetch("server.php", {
+            method: "POST",
+            body: JSON.stringify({
+                request: "clearSQL",
+            }),
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+            .then(() => {
+                location.reload()
+            })
+    }
+
+    function chooseOs() {
+        document.getElementById("selectPlayer").style.display = 'none'
+        document.getElementById("youAre").style.display = 'block'
+        fetch("server.php", {
+            method: "POST",
+            body: JSON.stringify({
+                iWant: "o",
+                request: "side"
+            }),
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+            .then(response => response.text())
+            .then(data => {
+                console.log(data)
+            })
+    }
+    let checkForPick = setInterval(() => {
+        fetch("server.php", {
+            method: "POST",
+            body: JSON.stringify({
+                request: "checkForPickedSide"
+            }),
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+            .then(response => response.text())
+            .then(data => {
+                player = data
+                if (data == 'x') {
+                    document.getElementById("selectPlayer").style.display = 'none'
+                    document.getElementById("youAre").style.display = 'block'
+                    document.getElementById("youAre").innerHTML = "You are X"
+                    side = 'x'
+                    clearInterval(checkForPick)
+                } else if (data == 'o') {
+                    document.getElementById("selectPlayer").style.display = 'none'
+                    document.getElementById("youAre").style.display = 'block'
+                    document.getElementById("youAre").innerHTML = "You are O"
+                    side = 'o'
+                    clearInterval(checkForPick)
+                }
+
+            })
+    }, 1000);
+    let updateTable = setInterval(() => {
+        fetch("server.php", {
+            method: "POST",
+            body: JSON.stringify({
+                request: "updateTable"
+            }),
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+            .then(response => response.text())
+            .then(data => {
+                let table = data.split(";")
+                for (let i = 0; i < table.length - 1; i++) {
+                    let cellnum = table[i].split(",")[0].substr(table[i].split(",")[0].length - 1)
+                    let side = table[i].split(",")[1]
+                    document.getElementById(cellnum).innerHTML = side
+                }
+            })
+    }, 1000);
+    let whoseGo = setInterval(() => {
+        fetch("server.php", {
+            method: "POST",
+            body: JSON.stringify({
+                request: "whoseGo"
+            }),
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+            .then(response => response.text())
+            .then(data => {
+                whoseTurn = data
+                if (whoseTurn != '') {
+                    document.getElementById("whoseGo").innerHTML = 'It is currently ' + whoseTurn + " go!"
+                }
+            })
+    }, 1000);
+    let checkForWin = setInterval(() => {
+        fetch("server.php", {
+            method: "POST",
+            body: JSON.stringify({
+                request: "checkForWin"
+            }),
+            headers: {
+                "Content-type": "application/json"
+            }
+        })
+            .then(response => response.text())
+            .then(data => {
+                if (data.split("win for").length > 1) {
+                    whoseTurn = ''
+                    let winner = data.split('win for')[data.split('win for').length - 1]
+                    if (winner == 'tie') {
+                        document.getElementById("whoseGo").innerHTML = "Its a tie!!!"
+                    } else {
+                        document.getElementById("whoseGo").innerHTML = winner + " is the winner!"
+                    }
+                    clearInterval(updateTable)
+                    clearInterval(whoseGo)
+                    clearInterval(checkForWin)
+
+                }
+            })
+    }, 1000);
+</script>
+
+</html>
